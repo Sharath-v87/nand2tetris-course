@@ -1,0 +1,11 @@
+CHIP DMux {
+    IN in, sel;
+    OUT a, b;
+
+    PARTS:
+    Nand(a=sel, b=sel, out=selnand);
+    Nand(a=in, b=sel, out=t1);
+    Nand(a=t1, b=t1, out=b);
+    Nand(a=in, b=selnand, out=t2);
+    Nand(a=t2, b=t2, out=a);
+}
