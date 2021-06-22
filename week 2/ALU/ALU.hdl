@@ -58,7 +58,7 @@ CHIP ALU {
 
     Add16 (a=nxop, b=nyop, out=f0op);
     And16 (a=nxop, b=nyop, out=f1op);
-    Mux16 (a=f0op, b=f1op, sel=f, out=fop);
+    Mux16 (a=f1op, b=f0op, sel=f, out=fop);
 
     Not16 (in=fop, out=negop);
     Mux16 (a=fop, b=negop, sel=no, out=out, out[0..7]=zeroa, out[8..15]=zerob, out[15]=ng);
