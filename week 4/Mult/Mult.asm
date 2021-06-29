@@ -11,23 +11,38 @@
 
 // Put your code here.
 @R0
+D=M
+@i
+M=D
 @R1
-@R2
+D=M
+@n 
+M=D
+@mul 
 M=0
 
 (LOOP)
-    @R0
+    @i
     D=M
-    @END
+    @STOP
     D;JEQ
-    @R1
-    D=M
-    @R2
-    M=M+D
-    @R0
+
+    @n
+    D=M 
+    @mul 
+    M=D+M 
+
+    @i     
     M=M-1
+
     @LOOP
     0;JMP
+
+(STOP)
+    @mul 
+    D=M 
+    @R2
+    M=D
 (END)
     @END
     0;JMP
