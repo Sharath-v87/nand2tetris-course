@@ -39,10 +39,43 @@ CHIP CPU {
         pc[15];          // address of next instruction
 
     PARTS:
-    Mux16(a=instruction, b=opbranch, sel= , out=aregin);
-    Register(in=aregin, load=instruction[5], out=secmuxip);
-    Mux16(a=secmuxip, b=inM, sel= , out=aluip1);
-    Register(in=opbranch, load=instruction[4], out=dregop);
-    ALU(x=aluip, y=dregop, zx=instruction[11] , nx=instruction[10] , zy=instruction[9] , ny=instruction[8] , f=instruction[7] , no=instruction[6], out=aluop, out=opbranch, zr= , ng= );
-    PC(in=secmuxip, load= , inc= , reset=reset, out=pcout);
+    Not(in=instruction[15], out=acont);
+    Not(in=acont, out=ccont);
+    And(a=ccont, b=instruction[5], out=muxsel);
+    Mux16(a=instruction, b=opbranch, sel=muxsel , out=aregin);
+    Or(a=acont, b=muxsel, out=aload);
+    ARegister(in=aregin, load=aload, out=secmuxip);
+    Mux16(a=secmuxip, b=inM, sel=instruction[12] , out=aluip1);
+    And(a=ccont, b=instruction[4], out=dload);
+    DRegister(in=opbranch, load=dload, out=dregop);
+    ALU(x=dregop, y=aluip1, zx=instruction[11] , nx=instruction[10] , zy=instruction[9] , ny=instruction[8] , f=instruction[7] , no=instruction[6], out=outM, out=opbranch, zr=zrop , ng=ngop);
+    And(a=ccont, b=instruction[3], out=writeM);
+    Or16(a=secmuxip, b=false, out[0..14]=addressM);
+
+    Not(in=zrop, out=zrnot);
+    Not(in=ngop, out=ngnot);
+    And(a=zrnot, b=ngnot, out=positive);
+    And(a=positive, b=instruction[0], out=posi);
+
+    And(a=posi, b=instruction[0], out=jgt);
+    And(a=zrop, b=instruction[1], out=jeq);
+    Or(a=jgt, b=jeq, out=jge);
+    Or(a=ngop, b=false, out=jlt);
+    Or(a=jlt, b=jgt, out=jne);
+    Or(a=jlt, b=jeq, out=jle);
+    Or(a=zrop, b=ngop, out=kewk);
+    Or(a=kewk, b=posi, out=jmp);
+
+    Mux(a=posi, b=jgt, sel=instruction[0], out=jumpa);
+    Mux(a=jeq, b=jge, sel=instruction[0], out=jumpb);
+    Mux(a=jlt, b=jne, sel=instruction[0], out=jumpc);
+    Mux(a=jle, b=jmp, sel=instruction[0], out=jumpd);
+    Mux(a=jumpa, b=jumpb, sel=instruction[1], out=jumpe);
+    Mux(a=jumpc, b=jumpd, sel=instruction[1], out=jumpf);
+    Mux(a=jumpe, b=jumpf, sel=instruction[2], out=actjump);
+
+    And(a=ccont, b=actjump, out=incre);
+    Not(in=incre, out=notinc);
+
+    PC(in=secmuxip, load=incre , inc=notinc , reset=reset, out[0..14]=pc);
 }
