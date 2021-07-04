@@ -1,5 +1,5 @@
 import re 
-f = open("RectL.asm",'r')
+f = open("MaxL.asm",'r')
 final_instruction=""
 for line in f:
     if line.startswith("//") or line.startswith("\n") or line == '':
@@ -160,11 +160,13 @@ for line in f:
             condi2=False
             kewk3=[]
             for k in l:
-                if k == ';':
+                if k == ';' or k == "\n":
                     condi2=True
                 elif condi2:
                     kewk3.append(k)
+            #print(kewk3)
             jump= str("".join(kewk3))
+            #print(jump)
             jump_value=[]
             if jump == "JGT":
                 jump_value=['001']
@@ -182,7 +184,7 @@ for line in f:
                 jump_value=['111']
             else :
                 jump_value=['000']
-
+            #print(jump_value)
             Cinst=['111']
             Final_instruct = Cinst+a_bit+comp_value+dest_value+jump_value
             finale_instu= str("".join(Final_instruct))
@@ -190,7 +192,7 @@ for line in f:
             final_instruction += finale_instu + "\n"
 
 #print(final_instruction)
-with open('rectL.hack', 'w') as f:
+with open('maxL.hack', 'w') as f:
     for Line in final_instruction:
         f.write(Line)
         
